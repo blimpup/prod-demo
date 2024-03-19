@@ -1,0 +1,65 @@
+indexer:
+  enabled: true
+
+engine:
+  name: tofu
+
+dirs:
+  envs/prod/**/*.tf:
+    tags: [prod]
+  envs/dev/**/*.tf:
+    tags: [dev]
+
+access_control:
+  policies:
+    - tag_query: prod
+      apply: ['repo:admin', 'repo:write']
+      superapproval: ['repo:admin']
+      apply_with_superapproval: ['*']
+    - tag_query: dev
+      apply: ['*']
+
+workflows:
+  - tag_query: dev
+    plan:
+      - type: env
+        name: AWS_ACCESS_KEY_ID
+        cmd: ['echo', '$DEV_ACCESS_KEY_ID']
+      - type: env
+        name: AWS_SECRET_ACCESS_KEY
+        cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
+      - type: init
+      - type: plan
+    apply:
+      - type: env
+        name: AWS_ACCESS_KEY_ID
+        cmd: ['echo', '$DEV_ACCESS_KEY_ID']
+      - type: env
+        name: AWS_SECRET_ACCESS_KEY
+        cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
+      - type: init
+      - type: apply
+  - tag_query: prod
+    plan:
+      - type: env
+        name: AWS_ACCESS_KEY_ID
+        cmd: ['echo', '$PROD_ACCESS_KEY_ID']
+      - type: env
+        name: AWS_SECRET_ACCESS_KEY
+        cmd: ['echo', '$PROD_SECRET_ACCESS_KEY']
+      - type: init
+      - type: plan
+    apply:
+      - type: env
+        name: AWS_ACCESS_KEY_ID
+        cmd: ['echo', '$PROD_ACCESS_KEY_ID']
+      - type: env
+        name: AWS_SECRET_ACCESS_KEY
+        cmd: ['echo', '$PROD_SECRET_ACCESS_KEY']
+      - type: init
+      - type: apply
+
+automerge:
+  enabled: true
+  delete_branch: true
+
