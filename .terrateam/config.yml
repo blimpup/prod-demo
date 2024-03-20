@@ -9,6 +9,10 @@ dirs:
     tags: [prod]
   envs/dev/**/*.tf:
     tags: [dev]
+  '**/terragrunt.hcl':
+    tags: [terragrunt, prod]
+    when_modified:
+      file_patterns: ['${DIR}/*.hcl', '${DIR}/*.tf', '${DIR}/../_envcommon/**/*.tf', '${DIR}/../_envcommon/**/*.hcl']
 
 access_control:
   policies:
@@ -20,6 +24,27 @@ access_control:
       apply: ['*']
 
 workflows:
+  - tag_query: terragrunt
+    engine:
+      name: terragrunt
+    plan:
+      - type: env
+        name: AWS_ACCESS_KEY_ID
+        cmd: ['echo', '$DEV_ACCESS_KEY_ID']
+      - type: env
+        name: AWS_SECRET_ACCESS_KEY
+        cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
+      - type: init
+      - type: plan
+    apply:
+      - type: env
+        name: AWS_ACCESS_KEY_ID
+        cmd: ['echo', '$DEV_ACCESS_KEY_ID']
+      - type: env
+        name: AWS_SECRET_ACCESS_KEY
+        cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
+      - type: init
+      - type: apply
   - tag_query: dev
     plan:
       - type: env
