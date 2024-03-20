@@ -12,7 +12,17 @@ dirs:
   '**/terragrunt.hcl':
     tags: [terragrunt, prod]
     when_modified:
-      file_patterns: ['${DIR}/*.hcl', '${DIR}/*.tf', '${DIR}/../_envcommon/**/*.tf', '${DIR}/../_envcommon/**/*.hcl']
+      file_patterns: ['${DIR}/terragrunt.hcl']
+  terragrunt-demo/prod/us-east-1/prod/volume:
+    tags: [terragrunt, prod]
+    when_modified:
+      file_patterns: ['${DIR}/terragrunt.hcl', 'terragrunt-demo/modules/volume/*.tf']
+  terragrunt-demo/modules/**/*:
+    when_modified:
+      file_patterns: []
+  terragrunt-demo:
+    when_modified:
+      file_patterns: []
 
 access_control:
   policies:
@@ -27,22 +37,23 @@ workflows:
   - tag_query: terragrunt
     engine:
       name: terragrunt
+      tf_cmd: tofu
     plan:
       - type: env
         name: AWS_ACCESS_KEY_ID
-        cmd: ['echo', '$DEV_ACCESS_KEY_ID']
+        cmd: ['echo', '$PROD_ACCESS_KEY_ID']
       - type: env
         name: AWS_SECRET_ACCESS_KEY
-        cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
+        cmd: ['echo', '$PROD_SECRET_ACCESS_KEY']
       - type: init
       - type: plan
     apply:
       - type: env
         name: AWS_ACCESS_KEY_ID
-        cmd: ['echo', '$DEV_ACCESS_KEY_ID']
+        cmd: ['echo', '$PROD_ACCESS_KEY_ID']
       - type: env
         name: AWS_SECRET_ACCESS_KEY
-        cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
+        cmd: ['echo', '$PROD_SECRET_ACCESS_KEY']
       - type: init
       - type: apply
   - tag_query: dev

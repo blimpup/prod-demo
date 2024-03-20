@@ -4,6 +4,7 @@
 # remote state, and locking: https://github.com/gruntwork-io/terragrunt
 # ---------------------------------------------------------------------------------------------------------------------
 
+
 locals {
   # Automatically load account-level variables
   account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
@@ -38,11 +39,12 @@ EOF
 remote_state {
   backend = "s3"
   config = {
-    encrypt        = true
-    bucket         = "terragrunt-terrateam-demo"
+    # encrypt        = true
+    bucket         = "terrateam-test-bucket"
     key            = "${path_relative_to_include()}/terraform.tfstate"
     region         = local.aws_region
-    dynamodb_table = "terraform-locks"
+    skip_bucket_root_access=true
+    # dynamodb_table = "terraform-locks"
   }
   generate = {
     path      = "backend.tf"
