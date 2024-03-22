@@ -28,8 +28,8 @@ locals {
   # be used to construct the terraform block in the child terragrunt configurations.
   # base_source_url = "git::https://github.com/terrateam-demo/terragrunt-infrastructure-modules-example.git//volume"
   # base_source_url = "git::git@github.com:terrateam-demo/terragrunt-infrastructure-modules-example.git//volume"
-  # base_source_url = find_in_parent_folders("modules//volume")
-  base_source_url = "${get_path_to_repo_root()}/modules/volume"
+  base_source_url = find_in_parent_folders("modules/volume")
+  #base_source_url = "${get_path_to_repo_root()}/modules/volume"
 
 }
 
