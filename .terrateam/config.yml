@@ -4,6 +4,13 @@ indexer:
 engine:
   name: tofu
 
+
+hooks:
+  all:
+    pre:
+      - type: run
+        cmd: ['/gcloud-cli-setup.sh']
+
 dirs:
   envs/prod/**/*.tf:
     tags: [prod]
