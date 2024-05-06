@@ -70,7 +70,7 @@ workflows:
         cmd: ['echo', '$DEV_SECRET_ACCESS_KEY']
       - type: init
       - type: apply
-  - tag_query: prod
+  - tag_query: prod or dir:.
     environment: production
     plan:
       - type: env
