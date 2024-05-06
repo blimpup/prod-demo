@@ -1,6 +1,10 @@
 indexer:
   enabled: true
 
+integrations:
+  resourcely:
+    enabled: true
+
 engine:
   name: tofu
 
