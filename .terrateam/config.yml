@@ -26,6 +26,7 @@ access_control:
       apply_with_superapproval: ['*']
     - tag_query: dev
       apply: ['*']
+    - tag_query: ''
 
 workflows:
   - tag_query: terragrunt
