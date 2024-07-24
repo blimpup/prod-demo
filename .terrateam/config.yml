@@ -3,7 +3,7 @@ indexer:
 
 integrations:
   resourcely:
-    enabled: true
+    enabled: false
 
 engine:
   name: tofu
