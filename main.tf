@@ -13,7 +13,7 @@ provider "aws" {
   region  = "us-west-2"
 }
 
-# resource "aws_instance" "ec2_instance" {
-#   ami           = "ami-04e914639d0cca79a"
-#   instance_type = "t2.micro"
-# }
+resource "aws_instance" "ec2_instance" {
+  ami           = "ami-04e914639d0cca79a"
+  instance_type = "t2.micro"
+}
