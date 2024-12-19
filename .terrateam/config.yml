@@ -6,7 +6,8 @@ integrations:
     enabled: false
 
 engine:
-  name: tofu
+  name: terraform
+  version: 1.5.7
 
 dirs:
   envs/prod/**/*.tf:
