@@ -7,7 +7,7 @@ integrations:
 
 engine:
   name: terraform
-  version: 1.5.7
+  version: latest
 
 dirs:
   envs/prod/**/*.tf:
