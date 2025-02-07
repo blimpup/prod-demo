@@ -1,5 +1,5 @@
 indexer:
-  enabled: true
+  enabled: false
 
 integrations:
   resourcely:
