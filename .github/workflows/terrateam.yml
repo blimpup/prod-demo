@@ -23,7 +23,7 @@
        runs_on:
          description: 'runs-on configuration'
          type: string
-         default: ubuntu-latest
+         default: '"ubuntu-latest"'
  jobs:
    terrateam:
      permissions: # Required to pass credentials to the Terrateam action
