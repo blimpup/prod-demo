@@ -133,5 +133,6 @@ workflows:
       name: custom
       plan: ['${TERRATEAM_ROOT}/bin/ansible-plan']
       apply: ['${TERRATEAM_ROOT}/bin/ansible-apply']
+  - tag_query: 'stack_name: base'
   - tag_query: ''
     environment: '${environment}'
