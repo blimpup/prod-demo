@@ -1,2 +1,99 @@
+# ============================================================================
+# REALISTIC STACKS CONFIGURATION
+# ============================================================================
+# Purpose: Simulate real-world multi-environment infrastructure setup
+# Complexity: Medium (8 leaf stacks, 5 parent stacks)
+# Use Case: Testing typical production usage patterns
+#
+# Structure:
+#   - 8 leaf stacks representing different services across 3 environments
+#     (compute, database, networking in prod/staging, plus dev compute/database)
+#   - 3 environment-based parent stacks (prod-full, staging-full, dev-full)
+#   - 2 service-based parent stacks (all-compute, all-databases)
+#
+# Expected UI Behavior:
+#   - Five top-level expandable cards
+#   - prod-full/staging-full show 3 nested stacks each
+#   - dev-full shows 2 nested stacks
+#   - all-compute shows 3 nested stacks (across all environments)
+#   - all-databases shows 3 nested stacks (across all environments)
+#   - Each nested card shows actual Terraform dirspaces
+#
+# Real-World Scenarios This Tests:
+#   - Multi-environment deployment (prod → staging → dev)
+#   - Service-based grouping (all compute resources, all databases)
+#   - Overlapping stacks (same leaf stack appears in multiple parents)
+# ============================================================================
+
+stacks:
+  names:
+    # ========================================================================
+    # LEAF STACKS (Level 2) - Actual Terraform directories
+    # ========================================================================
+
+    # Production environment
+    compute-prod:
+      tag_query: 'dir:infrastructure/compute workspace:production'
+
+    database-prod:
+      tag_query: 'dir:infrastructure/database workspace:production'
+
+    networking-prod:
+      tag_query: 'dir:infrastructure/networking workspace:production'
+
+    # Staging environment
+    compute-staging:
+      tag_query: 'dir:infrastructure/compute workspace:staging'
+
+    database-staging:
+      tag_query: 'dir:infrastructure/database workspace:staging'
+
+    networking-staging:
+      tag_query: 'dir:infrastructure/networking workspace:staging'
+
+    # Development environment (smaller footprint)
+    compute-dev:
+      tag_query: 'dir:infrastructure/compute workspace:dev'
+
+    database-dev:
+      tag_query: 'dir:infrastructure/database workspace:dev'
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Grouped by Environment
+    # ========================================================================
+
+    prod-full:
+      stacks:
+        - compute-prod
+        - database-prod
+        - networking-prod
+
+    staging-full:
+      stacks:
+        - compute-staging
+        - database-staging
+        - networking-staging
+
+    dev-full:
+      stacks:
+        - compute-dev
+        - database-dev
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Grouped by Service Type
+    # ========================================================================
+
+    all-compute:
+      stacks:
+        - compute-prod
+        - compute-staging
+        - compute-dev
+
+    all-databases:
+      stacks:
+        - database-prod
+        - database-staging
+        - database-dev
+
 engine:
   name: tofu
