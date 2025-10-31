@@ -1,2 +1,40 @@
+# ============================================================================
+# SIMPLE STACKS CONFIGURATION
+# ============================================================================
+# Purpose: Demonstrate basic 2-level stack hierarchy
+# Complexity: Low (2 leaf stacks, 2 parent stacks)
+# Use Case: Understanding how stacks work, basic testing
+#
+# Structure:
+#   - 2 leaf stacks (frontend, backend) containing actual Terraform directories
+#   - 1 parent stack (full-app) that combines both leaf stacks
+#   - 1 parent stack (backend-only) that references just the backend
+#
+# Expected UI Behavior:
+#   - Two top-level expandable cards (full-app, backend-only)
+#   - full-app expands to show frontend + backend as nested cards
+#   - backend-only expands to show just backend as nested card
+#   - Each nested card shows dirspaces (actual Terraform directories)
+# ============================================================================
+
+stacks:
+  names:
+    # Leaf stacks (Level 2) - these contain actual Terraform directories
+    frontend:
+      tag_query: 'dir:app/frontend'
+
+    backend:
+      tag_query: 'dir:app/backend'
+
+    # Parent stacks (Level 1) - these group leaf stacks together
+    full-app:
+      stacks:
+        - frontend
+        - backend
+
+    backend-only:
+      stacks:
+        - backend
+
 engine:
   name: tofu
