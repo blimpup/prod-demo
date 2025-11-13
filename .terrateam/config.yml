@@ -1,2 +1,146 @@
+# ============================================================================
+# STRESS TEST STACKS CONFIGURATION
+# ============================================================================
+# Purpose: Test UI performance and visual hierarchy at scale
+# Complexity: High (12 leaf stacks, 8 parent stacks)
+# Use Case: Stress testing the stacks UI with maximum complexity
+#
+# Structure:
+#   - 12 leaf stacks across 2 categories (services: 6, platform: 6)
+#   - 8 parent stacks with various grouping strategies:
+#     * 2 category stacks (all-services, all-platform)
+#     * 3 functional stacks (user-facing, backend-only, infrastructure)
+#     * 3 hybrid stacks (api-stack, data-stack, core-platform)
+#
+# Expected UI Behavior:
+#   - 8 top-level expandable cards (may need scrolling)
+#   - Some parent stacks contain 6+ nested stacks
+#   - Tests visual hierarchy with many children
+#   - Tests performance with many simultaneous cards
+#   - Tests state aggregation across many leaf stacks
+#
+# What This Stresses:
+#   - UI rendering performance (20 total stack objects)
+#   - Visual differentiation between levels
+#   - State aggregation across many services
+#   - Overlapping memberships (same leaf in many parents)
+#   - Layout with very long lists of nested stacks
+# ============================================================================
+
+stacks:
+  names:
+    # ========================================================================
+    # LEAF STACKS (Level 2) - 12 stacks across 2 categories
+    # ========================================================================
+
+    # Services (user-facing applications)
+    service-api:
+      tag_query: 'dir:services/api'
+
+    service-web:
+      tag_query: 'dir:services/web'
+
+    service-mobile:
+      tag_query: 'dir:services/mobile'
+
+    service-admin:
+      tag_query: 'dir:services/admin'
+
+    service-worker:
+      tag_query: 'dir:services/worker'
+
+    service-scheduler:
+      tag_query: 'dir:services/scheduler'
+
+    # Platform (infrastructure services)
+    platform-auth:
+      tag_query: 'dir:platform/auth'
+
+    platform-logging:
+      tag_query: 'dir:platform/logging'
+
+    platform-monitoring:
+      tag_query: 'dir:platform/monitoring'
+
+    platform-messaging:
+      tag_query: 'dir:platform/messaging'
+
+    platform-cache:
+      tag_query: 'dir:platform/cache'
+
+    platform-storage:
+      tag_query: 'dir:platform/storage'
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Category groupings (2 stacks, 6 children each)
+    # ========================================================================
+
+    all-services:
+      stacks:
+        - service-api
+        - service-web
+        - service-mobile
+        - service-admin
+        - service-worker
+        - service-scheduler
+
+    all-platform:
+      stacks:
+        - platform-auth
+        - platform-logging
+        - platform-monitoring
+        - platform-messaging
+        - platform-cache
+        - platform-storage
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Functional groupings (3 stacks)
+    # ========================================================================
+
+    user-facing:
+      stacks:
+        - service-api
+        - service-web
+        - service-mobile
+        - service-admin
+        - platform-auth
+
+    backend-only:
+      stacks:
+        - service-worker
+        - service-scheduler
+        - platform-messaging
+        - platform-cache
+
+    infrastructure:
+      stacks:
+        - platform-logging
+        - platform-monitoring
+        - platform-storage
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Hybrid groupings (3 stacks)
+    # ========================================================================
+
+    api-stack:
+      stacks:
+        - service-api
+        - service-mobile
+        - platform-auth
+        - platform-cache
+
+    data-stack:
+      stacks:
+        - platform-storage
+        - platform-messaging
+        - service-worker
+
+    core-platform:
+      stacks:
+        - platform-auth
+        - platform-logging
+        - platform-monitoring
+        - platform-cache
+
 engine:
   name: tofu
