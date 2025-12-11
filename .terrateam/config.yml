@@ -1,9 +1,9 @@
 # ============================================================================
-# STRESS TEST STACKS CONFIGURATION
+# STRESS TEST STACKS CONFIGURATION WITH DEPENDENCIES
 # ============================================================================
-# Purpose: Test UI performance and visual hierarchy at scale
-# Complexity: High (12 leaf stacks, 8 parent stacks)
-# Use Case: Stress testing the stacks UI with maximum complexity
+# Purpose: Test UI performance, visual hierarchy, and dependency visualization
+# Complexity: High (12 leaf stacks, 8 parent stacks, 5-layer dependency chain)
+# Use Case: Stress testing the stacks UI with maximum complexity AND dependencies
 #
 # Structure:
 #   - 12 leaf stacks across 2 categories (services: 6, platform: 6)
@@ -12,19 +12,30 @@
 #     * 3 functional stacks (user-facing, backend-only, infrastructure)
 #     * 3 hybrid stacks (api-stack, data-stack, core-platform)
 #
+# Dependency Hierarchy (5 layers):
+#   Layer 1: platform-auth, platform-logging, platform-storage (no deps)
+#   Layer 2: platform-monitoring, platform-cache (depends on Layer 1)
+#   Layer 3: platform-messaging (depends on Layer 2)
+#   Layer 4: service-api, service-worker, service-scheduler (depends on Layers 2-3)
+#   Layer 5: service-web, service-mobile, service-admin (depends on Layer 4)
+#
 # Expected UI Behavior:
 #   - 8 top-level expandable cards (may need scrolling)
 #   - Some parent stacks contain 6+ nested stacks
+#   - Stacks in "Plan pending" state show dependency info boxes
+#   - Dependency chains visualized with arrows (e.g., "platform-storage → platform-auth")
 #   - Tests visual hierarchy with many children
 #   - Tests performance with many simultaneous cards
 #   - Tests state aggregation across many leaf stacks
 #
 # What This Stresses:
 #   - UI rendering performance (20 total stack objects)
+#   - Dependency visualization with multiple chains
 #   - Visual differentiation between levels
 #   - State aggregation across many services
 #   - Overlapping memberships (same leaf in many parents)
 #   - Layout with very long lists of nested stacks
+#   - Pending state explanations for blocked workspaces
 # ============================================================================
 
 stacks:
@@ -34,42 +45,79 @@ stacks:
     # ========================================================================
 
     # Services (user-facing applications)
+    # Layer 4: Backend services (depend on platform)
     service-api:
       tag_query: 'dir:services/api'
-
-    service-web:
-      tag_query: 'dir:services/web'
-
-    service-mobile:
-      tag_query: 'dir:services/mobile'
-
-    service-admin:
-      tag_query: 'dir:services/admin'
+      rules:
+        plan_after:
+          - platform-auth
+          - platform-cache
 
     service-worker:
       tag_query: 'dir:services/worker'
+      rules:
+        plan_after:
+          - platform-messaging
+          - platform-cache
 
     service-scheduler:
       tag_query: 'dir:services/scheduler'
+      rules:
+        plan_after:
+          - platform-messaging
+
+    # Layer 5: Frontend services (depend on backend API)
+    service-web:
+      tag_query: 'dir:services/web'
+      rules:
+        plan_after:
+          - service-api
+
+    service-mobile:
+      tag_query: 'dir:services/mobile'
+      rules:
+        plan_after:
+          - service-api
+
+    service-admin:
+      tag_query: 'dir:services/admin'
+      rules:
+        plan_after:
+          - service-api
+          - platform-monitoring
 
     # Platform (infrastructure services)
+    # Layer 1: Foundation (no dependencies - runs first)
     platform-auth:
       tag_query: 'dir:platform/auth'
 
     platform-logging:
       tag_query: 'dir:platform/logging'
 
+    platform-storage:
+      tag_query: 'dir:platform/storage'
+
+    # Layer 2: Core platform services (depends on Layer 1)
     platform-monitoring:
       tag_query: 'dir:platform/monitoring'
-
-    platform-messaging:
-      tag_query: 'dir:platform/messaging'
+      rules:
+        plan_after:
+          - platform-logging
 
     platform-cache:
       tag_query: 'dir:platform/cache'
+      rules:
+        plan_after:
+          - platform-storage
+          - platform-auth
 
-    platform-storage:
-      tag_query: 'dir:platform/storage'
+    # Layer 3: Advanced platform services (depends on Layer 2)
+    platform-messaging:
+      tag_query: 'dir:platform/messaging'
+      rules:
+        plan_after:
+          - platform-cache
+          - platform-logging
 
     # ========================================================================
     # PARENT STACKS (Level 1) - Category groupings (2 stacks, 6 children each)
