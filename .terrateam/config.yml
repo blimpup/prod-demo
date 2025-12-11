@@ -1,40 +1,194 @@
 # ============================================================================
-# SIMPLE STACKS CONFIGURATION
+# STRESS TEST STACKS CONFIGURATION WITH DEPENDENCIES
 # ============================================================================
-# Purpose: Demonstrate basic 2-level stack hierarchy
-# Complexity: Low (2 leaf stacks, 2 parent stacks)
-# Use Case: Understanding how stacks work, basic testing
+# Purpose: Test UI performance, visual hierarchy, and dependency visualization
+# Complexity: High (12 leaf stacks, 8 parent stacks, 5-layer dependency chain)
+# Use Case: Stress testing the stacks UI with maximum complexity AND dependencies
 #
 # Structure:
-#   - 2 leaf stacks (frontend, backend) containing actual Terraform directories
-#   - 1 parent stack (full-app) that combines both leaf stacks
-#   - 1 parent stack (backend-only) that references just the backend
+#   - 12 leaf stacks across 2 categories (services: 6, platform: 6)
+#   - 8 parent stacks with various grouping strategies:
+#     * 2 category stacks (all-services, all-platform)
+#     * 3 functional stacks (user-facing, backend-only, infrastructure)
+#     * 3 hybrid stacks (api-stack, data-stack, core-platform)
+#
+# Dependency Hierarchy (5 layers):
+#   Layer 1: platform-auth, platform-logging, platform-storage (no deps)
+#   Layer 2: platform-monitoring, platform-cache (depends on Layer 1)
+#   Layer 3: platform-messaging (depends on Layer 2)
+#   Layer 4: service-api, service-worker, service-scheduler (depends on Layers 2-3)
+#   Layer 5: service-web, service-mobile, service-admin (depends on Layer 4)
 #
 # Expected UI Behavior:
-#   - Two top-level expandable cards (full-app, backend-only)
-#   - full-app expands to show frontend + backend as nested cards
-#   - backend-only expands to show just backend as nested card
-#   - Each nested card shows dirspaces (actual Terraform directories)
+#   - 8 top-level expandable cards (may need scrolling)
+#   - Some parent stacks contain 6+ nested stacks
+#   - Stacks in "Plan pending" state show dependency info boxes
+#   - Dependency chains visualized with arrows (e.g., "platform-storage → platform-auth")
+#   - Tests visual hierarchy with many children
+#   - Tests performance with many simultaneous cards
+#   - Tests state aggregation across many leaf stacks
+#
+# What This Stresses:
+#   - UI rendering performance (20 total stack objects)
+#   - Dependency visualization with multiple chains
+#   - Visual differentiation between levels
+#   - State aggregation across many services
+#   - Overlapping memberships (same leaf in many parents)
+#   - Layout with very long lists of nested stacks
+#   - Pending state explanations for blocked workspaces
 # ============================================================================
 
 stacks:
   names:
-    # Leaf stacks (Level 2) - these contain actual Terraform directories
-    frontend:
-      tag_query: 'dir:app/frontend'
+    # ========================================================================
+    # LEAF STACKS (Level 2) - 12 stacks across 2 categories
+    # ========================================================================
 
-    backend:
-      tag_query: 'dir:app/backend'
+    # Services (user-facing applications)
+    # Layer 4: Backend services (depend on platform)
+    service-api:
+      tag_query: 'dir:services/api'
+      rules:
+        plan_after:
+          - platform-auth
+          - platform-cache
 
-    # Parent stacks (Level 1) - these group leaf stacks together
-    full-app:
+    service-worker:
+      tag_query: 'dir:services/worker'
+      rules:
+        plan_after:
+          - platform-messaging
+          - platform-cache
+
+    service-scheduler:
+      tag_query: 'dir:services/scheduler'
+      rules:
+        plan_after:
+          - platform-messaging
+
+    # Layer 5: Frontend services (depend on backend API)
+    service-web:
+      tag_query: 'dir:services/web'
+      rules:
+        plan_after:
+          - service-api
+
+    service-mobile:
+      tag_query: 'dir:services/mobile'
+      rules:
+        plan_after:
+          - service-api
+
+    service-admin:
+      tag_query: 'dir:services/admin'
+      rules:
+        plan_after:
+          - service-api
+          - platform-monitoring
+
+    # Platform (infrastructure services)
+    # Layer 1: Foundation (no dependencies - runs first)
+    platform-auth:
+      tag_query: 'dir:platform/auth'
+
+    platform-logging:
+      tag_query: 'dir:platform/logging'
+
+    platform-storage:
+      tag_query: 'dir:platform/storage'
+
+    # Layer 2: Core platform services (depends on Layer 1)
+    platform-monitoring:
+      tag_query: 'dir:platform/monitoring'
+      rules:
+        plan_after:
+          - platform-logging
+
+    platform-cache:
+      tag_query: 'dir:platform/cache'
+      rules:
+        plan_after:
+          - platform-storage
+          - platform-auth
+
+    # Layer 3: Advanced platform services (depends on Layer 2)
+    platform-messaging:
+      tag_query: 'dir:platform/messaging'
+      rules:
+        plan_after:
+          - platform-cache
+          - platform-logging
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Category groupings (2 stacks, 6 children each)
+    # ========================================================================
+
+    all-services:
       stacks:
-        - frontend
-        - backend
+        - service-api
+        - service-web
+        - service-mobile
+        - service-admin
+        - service-worker
+        - service-scheduler
+
+    all-platform:
+      stacks:
+        - platform-auth
+        - platform-logging
+        - platform-monitoring
+        - platform-messaging
+        - platform-cache
+        - platform-storage
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Functional groupings (3 stacks)
+    # ========================================================================
+
+    user-facing:
+      stacks:
+        - service-api
+        - service-web
+        - service-mobile
+        - service-admin
+        - platform-auth
 
     backend-only:
       stacks:
-        - backend
+        - service-worker
+        - service-scheduler
+        - platform-messaging
+        - platform-cache
+
+    infrastructure:
+      stacks:
+        - platform-logging
+        - platform-monitoring
+        - platform-storage
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Hybrid groupings (3 stacks)
+    # ========================================================================
+
+    api-stack:
+      stacks:
+        - service-api
+        - service-mobile
+        - platform-auth
+        - platform-cache
+
+    data-stack:
+      stacks:
+        - platform-storage
+        - platform-messaging
+        - service-worker
+
+    core-platform:
+      stacks:
+        - platform-auth
+        - platform-logging
+        - platform-monitoring
+        - platform-cache
 
 engine:
   name: tofu
