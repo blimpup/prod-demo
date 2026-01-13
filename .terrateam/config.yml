@@ -1,40 +1,93 @@
-# ============================================================================
-# SIMPLE STACKS CONFIGURATION
-# ============================================================================
-# Purpose: Demonstrate basic 2-level stack hierarchy
-# Complexity: Low (2 leaf stacks, 2 parent stacks)
-# Use Case: Understanding how stacks work, basic testing
-#
-# Structure:
-#   - 2 leaf stacks (frontend, backend) containing actual Terraform directories
-#   - 1 parent stack (full-app) that combines both leaf stacks
-#   - 1 parent stack (backend-only) that references just the backend
-#
-# Expected UI Behavior:
-#   - Two top-level expandable cards (full-app, backend-only)
-#   - full-app expands to show frontend + backend as nested cards
-#   - backend-only expands to show just backend as nested card
-#   - Each nested card shows dirspaces (actual Terraform directories)
-# ============================================================================
+automerge:
+  enabled: true
+  delete_branch: true
 
-stacks:
-  names:
-    # Leaf stacks (Level 2) - these contain actual Terraform directories
-    frontend:
-      tag_query: 'dir:app/frontend'
+when_modified:
+  autoplan: true
 
-    backend:
-      tag_query: 'dir:app/backend'
+apply_requirements:
+  create_pending_apply_check: true
+  checks:
+    - tag_query: ""
+      status_checks:
+        enabled: true
+        ignore_matching: ["iacbot"]
 
-    # Parent stacks (Level 1) - these group leaf stacks together
-    full-app:
-      stacks:
-        - frontend
-        - backend
-
-    backend-only:
-      stacks:
-        - backend
+destination_branches:
+  - branch: 'main'
+    source_branches: [ '*' ]
 
 engine:
-  name: tofu
+  name: terraform
+  version: 1.5.7
+
+indexer:
+  enabled: true
+
+drift:
+  enabled: true
+  schedule: daily
+  reconcile: false
+
+access_control:
+  policies:
+    - tag_query: 'dev'
+      plan: ['*']
+      apply: ['team:dev']
+    - tag_query: 'not dev'
+      plan: ['*']
+      apply: ['team:phr-admins']
+      apply_with_superapproval: ['team:dev']
+      superapproval: ['team:phr-admins']
+
+dirs:
+  terraform/nigeria-1/bootstrap/*:
+    when_modified:
+      file_patterns: []
+  terraform/**/*:
+    when_modified:
+      file_patterns: [ "${DIR}/*.tf", "${DIR}/*.tfvars", "${DIR}/*.hcl" ]
+  terraform/develop-238811/**/*:
+    tags: [dev]
+  terraform/nigeria-1/**/*:
+    when_modified:
+      file_patterns: []
+  terraform/**/modules/**/*:
+    when_modified:
+      file_patterns: []
+  terraform/global/**/*:
+    when_modified:
+      file_patterns: []
+  terraform/global/tailscale/**/*:
+    when_modified:
+      file_patterns: [ "${DIR}/*.tf", "${DIR}/*.tfvars", "${DIR}/*.hcl" ]
+  terraform/bi-prod-sync/core-infra/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/bi-prod-345912/cluster/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/infra-240614/secrets/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/bi-dev-125934/cluster/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/phr-uat-ng/config/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/phr-uat-ng/log-forwarder/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/phr-uat-ng/shared-services/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/corp-telemetry/monitoring/**/*:
+    when_modified:
+      file_patterns: [ ]
+  infra-new/ansible/**/*:
+    when_modified:
+      file_patterns: [ ]
+  terraform/prod-239510/data-store/auditlogs:
+    when_modified:
+      file_patterns: [ "${DIR}/*.tf", "${DIR}/*.hcl", "terraform/prod-239510/services/aidbox/config/**/*.tf", "terraform/prod-239510/services/aidbox/config/**/*.hcl" ]
