@@ -1,2 +1,58 @@
+# ============================================================================
+# REALISTIC STACKS CONFIGURATION
+# ============================================================================
+# Purpose: Demonstrate realistic infrastructure stack grouping
+# Complexity: Medium (3 leaf stacks, 2 parent stacks)
+# Use Case: Testing typical production usage patterns
+#
+# Structure:
+#   - 3 leaf stacks (compute, database, networking) containing actual Terraform directories
+#   - 2 parent stacks showing different grouping strategies:
+#     * full-infrastructure: all 3 services
+#     * backend-services: just compute + database
+#
+# Expected UI Behavior:
+#   - Two top-level expandable cards
+#   - full-infrastructure expands to show 3 nested stacks
+#   - backend-services expands to show 2 nested stacks
+#   - Tests overlapping: compute and database appear in both parents
+#
+# Real-World Scenarios This Tests:
+#   - Service-based infrastructure grouping
+#   - Overlapping stacks (same leaf stack appears in multiple parents)
+#   - State aggregation across different grouping strategies
+# ============================================================================
+
+stacks:
+  names:
+    # ========================================================================
+    # LEAF STACKS (Level 2) - Actual Terraform directories
+    # ========================================================================
+
+    # Infrastructure services
+    compute:
+      tag_query: 'dir:infrastructure/compute'
+
+    database:
+      tag_query: 'dir:infrastructure/database'
+
+    networking:
+      tag_query: 'dir:infrastructure/networking'
+
+    # ========================================================================
+    # PARENT STACKS (Level 1) - Grouping strategies
+    # ========================================================================
+
+    full-infrastructure:
+      stacks:
+        - compute
+        - database
+        - networking
+
+    backend-services:
+      stacks:
+        - compute
+        - database
+
 engine:
   name: tofu
