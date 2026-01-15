@@ -1,8 +1,7 @@
-apply_requirements:
-  checks:
-    - tag_query: ''
-      approved:
-        enabled: true
-        any_of_count: 1
+drift:
+  enabled: false
+  schedule: hourly
 engine:
   name: tofu
+destination_branches:
+  - non-default-branch
