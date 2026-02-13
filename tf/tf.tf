@@ -1,3 +1,3 @@
-
-resource "null_resource" "foo4" {
+module "foo" {
+  source = "../modules/foo"
 }
