@@ -1,9 +1,2 @@
-drift:
-  enabled: true
-  schedule: hourly
 engine:
   name: tofu
-hooks:
-  plan:
-    post:
-    - type: drift_create_issue
