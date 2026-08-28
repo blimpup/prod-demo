@@ -1,3 +1,4 @@
-enabled: false
+indexer:
+  enabled: true
 engine:
   name: tofu
