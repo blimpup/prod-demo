@@ -17,3 +17,10 @@ indexer:
 
 engine:
   name: tofu
+
+hooks:
+  all:
+    pre:
+      - type: env
+        name: 'TENV_LOG'
+        cmd: ['echo', 'trace']
